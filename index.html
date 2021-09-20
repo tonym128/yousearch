@@ -140,7 +140,7 @@
         let search_text = document.getElementById('search_text').value;
         let params = (new URLSearchParams(window.location.search));
         params.set("s",search_text);
-        changeurl("?"+params.toString(), "YouTube Search for TTECH");
+        changeurl("yousearch/?"+params.toString(), "YouTube Search for TTECH");
 
         const sqlPromise = initSqlJs({
           locateFile: file => `/yousearch/dist/sql-wasm.wasm`
