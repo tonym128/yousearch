@@ -131,7 +131,14 @@
         tbody.appendChild(row_2);
       };
 
+      function changeurl(url, title) {
+          var new_url = '/' + url;
+          window.history.pushState('data', title, new_url); 
+      }
+
       async function start() {
+        let search_value = document.getElementById('search_text').value;
+
         const sqlPromise = initSqlJs({
           locateFile: file => `/yousearch/dist/sql-wasm.wasm`
         });
@@ -141,6 +148,8 @@
 
         // Prepare a statement
         let search_text = document.getElementById('search_text').value;
+        let params = (new URLSearchParams(window.location.search));
+        params.set("s",search_text);
         let minViews = 50;
         let maxResults = 5;
         const stmt = db.prepare(`SELECT views, video_id, title, summary FROM videos WHERE 1 = 1 AND views > ${minViews} AND (title like '%${search_text}%' or summary like '%${search_text}%') order by views desc limit ${maxResults}`);
@@ -150,8 +159,11 @@
           const row = stmt.getAsObject();
           addRow(row,link);
         }
+        changeurl("YouTube Search for TTECH","https://ttech.mamacos.media/yousearch/" + params.toString());
     };
 
+    // Set TextBox to Param
+    document.getElementById('search_text').value = (new URLSearchParams(window.location.search)).get("s");
     createTable();
     start();
 
