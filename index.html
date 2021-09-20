@@ -41,12 +41,12 @@
 
   </head>
   <body id="body">
-    <input type="radio" name="choice" value="link" id="choice-link" checked> 
+    <input type="radio" name="choice" value="link" id="choice-link" checked>
     <label for="choice-link">Link</label>
-    <input type="radio" name="choice" value="embed" id="choice-embed"> 
+    <input type="radio" name="choice" value="embed" id="choice-embed">
     <label for="choice-embed">Embed</label>
-    <input id="search_text" oninput="start()">></input>    
-    <button onclick="start()">Search</button>    
+    <input id="search_text" oninput="start()"></input>
+    <button onclick="start()">Search</button>
   </body>
   <script src='/yousearch/dist/sql-wasm.js'></script>
   <script>
@@ -55,7 +55,7 @@
 
         for(var i = 1;i<table.rows.length;){
             table.deleteRow(i);
-        }        
+        }
       }
 
       function createTable() {
@@ -89,13 +89,13 @@
         row_1.appendChild(heading_4);
         thead.appendChild(row_1);
       };
-      
+
       function addVideo(video_id,link) {
         if (link) return `<a href="https://www.youtube.com/watch?v=${video_id}">${video_id}</a>`;
 
         return videoString = `<iframe width="420" height="345" src="https://www.youtube.com/embed/${video_id}"></iframe>`;
       }
-      
+
       function addRow(row,link) {
         let stringyRow = JSON.stringify(row);
         // console.log('Here is a row: ' + stringyRow);
@@ -141,7 +141,7 @@
     };
 
     createTable();
-    start();        
+    start();
 
   </script>
 </html>
