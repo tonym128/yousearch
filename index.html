@@ -1,0 +1,147 @@
+<meta charset="utf8" />
+<html>
+  <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+
+      <style>
+        .styled-table {
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .styled-table th,
+        .styled-table td {
+            padding: 12px 15px;
+        }
+
+        .styled-table tbody tr {
+            border-bottom: thin solid #dddddd;
+        }
+
+        .styled-table tbody tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+
+        .styled-table tbody tr:last-of-type {
+            border-bottom: 2px solid #009879;
+        }
+
+        .styled-table tbody tr.active-row {
+            font-weight: bold;
+            color: #009879;
+        }
+      </style>
+
+  </head>
+  <body id="body">
+    <input type="radio" name="choice" value="link" id="choice-link" checked> 
+    <label for="choice-link">Link</label>
+    <input type="radio" name="choice" value="embed" id="choice-embed"> 
+    <label for="choice-embed">Embed</label>
+    <input id="search_text" oninput="start()">></input>    
+    <button onclick="start()">Search</button>    
+  </body>
+  <script src='/dist/sql-wasm.js'></script>
+  <script>
+      function clearTable() {
+        let table = document.getElementById('ttable');
+
+        for(var i = 1;i<table.rows.length;){
+            table.deleteRow(i);
+        }        
+      }
+
+      function createTable() {
+        let table = document.createElement('table');
+        table.setAttribute('class','styled-table')
+        let thead = document.createElement('thead');
+        let tbody = document.createElement('tbody');
+
+        tbody.setAttribute("id", "tbody");
+        table.setAttribute("id", "ttable");
+
+        table.appendChild(thead);
+        table.appendChild(tbody);
+
+        // Adding the entire table to the body tag
+        document.getElementById('body').appendChild(table);
+        // Creating and adding data to first row of the table
+        let row_1 = document.createElement('tr');
+        let heading_1 = document.createElement('th');
+        heading_1.innerHTML = "Views";
+        let heading_2 = document.createElement('th');
+        heading_2.innerHTML = "VideoId";
+        let heading_3 = document.createElement('th');
+        heading_3.innerHTML = "Title";
+        let heading_4 = document.createElement('th');
+        heading_4.innerHTML = "Summary";
+
+        row_1.appendChild(heading_1);
+        row_1.appendChild(heading_2);
+        row_1.appendChild(heading_3);
+        row_1.appendChild(heading_4);
+        thead.appendChild(row_1);
+      };
+      
+      function addVideo(video_id,link) {
+        if (link) return `<a href="https://www.youtube.com/watch?v=${video_id}">${video_id}</a>`;
+
+        return videoString = `<iframe width="420" height="345" src="https://www.youtube.com/embed/${video_id}"></iframe>`;
+      }
+      
+      function addRow(row,link) {
+        let stringyRow = JSON.stringify(row);
+        // console.log('Here is a row: ' + stringyRow);
+        let tbody = document.getElementById('tbody');
+
+        let row_2 = document.createElement('tr');
+        let row_2_data_1 = document.createElement('td');
+        row_2_data_1.innerHTML = row['views'];
+        let row_2_data_2 = document.createElement('td');
+        row_2_data_2.innerHTML = addVideo(row['video_id'],link);
+        let row_2_data_3 = document.createElement('td');
+        row_2_data_3.innerHTML = row['title'];
+        let row_2_data_4 = document.createElement('td');
+        row_2_data_4.innerHTML = row['summary'].replace(/(?:\r\n|\r|\n)/g, '<br>');
+
+        row_2.appendChild(row_2_data_1);
+        row_2.appendChild(row_2_data_2);
+        row_2.appendChild(row_2_data_3);
+        row_2.appendChild(row_2_data_4);
+
+        tbody.appendChild(row_2);
+      };
+
+      async function start() {
+        const sqlPromise = initSqlJs({
+          locateFile: file => `/dist/sql-wasm.wasm`
+        });
+        const dataPromise = fetch("/db.sqlite3").then(res => res.arrayBuffer());
+        const [SQL, buf] = await Promise.all([sqlPromise, dataPromise])
+        const db = new SQL.Database(new Uint8Array(buf));
+
+        // Prepare a statement
+        let search_text = document.getElementById('search_text').value;
+        let minViews = 50;
+        let maxResults = 5;
+        const stmt = db.prepare(`SELECT views, video_id, title, summary FROM videos WHERE 1 = 1 AND views > ${minViews} AND (title like '%${search_text}%' or summary like '%${search_text}%') order by views desc limit ${maxResults}`);
+        clearTable();
+        let link = document.getElementById('choice-link').checked;
+        while(stmt.step()) {
+          const row = stmt.getAsObject();
+          addRow(row,link);
+        }
+    };
+
+    createTable();
+    start();        
+
+  </script>
+</html>
