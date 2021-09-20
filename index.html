@@ -48,7 +48,7 @@
     <input id="search_text" oninput="start()">></input>    
     <button onclick="start()">Search</button>    
   </body>
-  <script src='dist/sql-wasm.js'></script>
+  <script src='/yousearch/dist/sql-wasm.js'></script>
   <script>
       function clearTable() {
         let table = document.getElementById('ttable');
@@ -121,9 +121,9 @@
 
       async function start() {
         const sqlPromise = initSqlJs({
-          locateFile: file => `dist/sql-wasm.wasm`
+          locateFile: file => `/yousearch/dist/sql-wasm.wasm`
         });
-        const dataPromise = fetch("db.sqlite3").then(res => res.arrayBuffer());
+        const dataPromise = fetch("/yousearch/db.sqlite3").then(res => res.arrayBuffer());
         const [SQL, buf] = await Promise.all([sqlPromise, dataPromise])
         const db = new SQL.Database(new Uint8Array(buf));
 
