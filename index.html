@@ -158,7 +158,7 @@
         // Prepare a statement
         let minViews = 50;
         let maxResults = 5;
-        const stmt = db.prepare(`SELECT views, video_id, title, summary FROM videos WHERE 1 = 1 AND views > ${minViews} AND (title like '%${search_text}%' or summary like '%${search_text}%') order by views desc limit ${maxResults}`);
+        const stmt = db.prepare(`SELECT views, date_time, video_id, title, summary FROM videos WHERE 1 = 1 AND views > ${minViews} AND (title like '%${search_text}%' or summary like '%${search_text}%') order by views desc limit ${maxResults}`);
         clearTable();
         let link = document.getElementById('choice-link').checked;
         while(stmt.step()) {
