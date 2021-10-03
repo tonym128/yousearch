@@ -44,10 +44,21 @@
     <title>Search for TTECH</title>
     <a href="https://ttech.mamacos.media/">TTECH Blog</a>&nbsp;&nbsp;
     (<a href="https://github.com/tonym128/yousearch/">GitHub Repo</a>)<br/>
+    <label for="limit">Results:</label>
+    <input type="number" id="limit" name="limit" value="5" min="1" max="100"><br/>
+  
+    <label for="choice">View Options:</label>
     <input type="radio" name="choice" value="link" id="choice-link" checked>
     <label for="choice-link">Link</label>
     <input type="radio" name="choice" value="embed" id="choice-embed">
-    <label for="choice-embed">Embed</label>
+    <label for="choice-embed">Embed</label><br/>
+
+    <label for="sort">Sort By:</label>
+    <input type="radio" name="sort" value="date" id="sort-date">
+    <label for="choice-link">Date</label>
+    <input type="radio" name="sort" value="views" id="sort-views" checked>
+    <label for="choice-embed">Views</label><br/>
+
     <input id="search_text" oninput="start()"></input>
     <button onclick="start()">Search</button>
   </body>
@@ -156,9 +167,10 @@
         const db = new SQL.Database(new Uint8Array(buf));
 
         // Prepare a statement
-        let minViews = 50;
-        let maxResults = 5;
-        const stmt = db.prepare(`SELECT views, date_time, video_id, title, summary FROM videos WHERE 1 = 1 AND views > ${minViews} AND (title like '%${search_text}%' or summary like '%${search_text}%') order by views desc limit ${maxResults}`);
+        let minViews = 20;
+        let maxResults = document.getElementById('limit').value;
+        let sort = document.getElementById('sort-date').checked ? "date_time desc" : "views desc";
+        const stmt = db.prepare(`SELECT views, date_time, video_id, title, summary FROM videos WHERE 1 = 1 AND views > ${minViews} AND (title like '%${search_text}%' or summary like '%${search_text}%') order by ${sort} limit ${maxResults}`);
         clearTable();
         let link = document.getElementById('choice-link').checked;
         while(stmt.step()) {
